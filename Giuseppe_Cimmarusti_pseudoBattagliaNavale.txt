@@ -1,0 +1,229 @@
+BATTAGLIA NAVALE - PSEUDOCODICE (fino al posizionamento delle navi)
+
+INPUT
+Nome1, nome del primo giocatore, array a 1 dimensione di 4 caratteri
+Nome2, nome del secondo giocatore, array a 1 dimensione di 4 caratteri, diverso da Nome1
+GrigliaNavi1, contiene le posizioni delle navi del primo giocatore, array a 2 dimensioni di interi (10x10)
+GrigliaNavi2, contiene le posizioni delle navi del secondo giocatore, array a 2 dimensioni di interi (10x10)
+GrigliaEsiti1, contiene l'esito dei colpi sparati dal primo giocatore, array a 2 dimensioni di interi (10x10)
+GrigliaEsiti2, contiene l'esito dei colpi sparati dal secondo giocatore, array a 2 dimensioni di interi (10x10)
+RigaIniziale, RigaFinale, righe di inizio e fine nave inserite (1-10), interi
+ColonnaIniziale, ColonnaFinale, colonne di inizio e fine nave inserite (A-J), caratteri
+Lunghezze, lunghezze delle 10 navi, array a 1 dimensione di interi = {5,4,4,3,3,3,2,2,2,2}
+
+DATI DI LAVORO
+Seed, valore iniziale del generatore di numeri casuali, intero
+NumeroCasuale, numero generato casualmente, intero
+Numero, giocatore che inizia (1 o 2), intero
+n, numero della nave che si sta posizionando (1-10), intero
+Giocatore, numero del giocatore (1 o 2), intero
+Min, Max, estremi della nave (colonne se orizzontale, righe se verticale), interi
+RInizio, RFine, CInizio, CFine, estremi del rettangolo da controllare (nave + margine), interi
+Valida, indica se la posizione inserita e' valida, naturale che vale 0 o 1
+r, c, indici per scorrere il rettangolo, interi
+i, j, indici per scorrere le griglie (RiempiGriglia) e per scrivere le caselle della nave, interi
+
+OUTPUT
+GrigliaNavi1, con le 10 navi del primo giocatore posizionate (ogni casella contiene 0 se vuota, oppure il numero della nave)
+GrigliaNavi2, con le 10 navi del secondo giocatore posizionate (stesso formato)
+GrigliaEsiti1 e GrigliaEsiti2, inizializzate a 0 (nessun colpo ancora sparato)
+Messaggi a video: giocatore che inizia, richieste di posizionamento, eventuali errori di posizione
+
+Nota: ogni nave e' identificata dal suo numero n (1-10), scritto in tutte le sue caselle
+della griglia. Le colonne A-J sono convertite in numeri 1-10.
+
+
+=====================================================================
+ALGORITMO (PROGRAMMA PRINCIPALE)
+=====================================================================
+
+Stampare("Inserire il nome del primo giocatore: ")
+Leggere(Nome1)
+ESEGUI
+    Stampare("Inserire il nome del secondo giocatore: ")
+    Leggere(Nome2)
+    SE (Nome2=Nome1) ALLORA
+        Stampare("ERRORE: inserire un nome diverso dal giocatore 1")
+    FINE
+FINCHE' (Nome2=Nome1)
+
+//Scelta casuale del giocatore che inizia (1 o 2)
+NumeroCasuale=GeneratoreNumeriCasuali(Seed)
+Numero=(NumeroCasuale MOD 2)+1
+SE (Numero=1) ALLORA
+    Stampare("Inizia ", Nome1)
+ALTRIMENTI
+    Stampare("Inizia ", Nome2)
+FINE
+
+//Inizializzazione a 0 delle griglie di entrambi i giocatori
+RiempiGriglia(GrigliaEsiti1, GrigliaNavi1)
+RiempiGriglia(GrigliaEsiti2, GrigliaNavi2)
+
+//Il giocatore che inizia posiziona le navi per primo
+SE (Numero=1)
+ALLORA
+    PosizionaNavi(GrigliaNavi1, 1, Nome1)
+    PosizionaNavi(GrigliaNavi2, 2, Nome2)
+ALTRIMENTI
+    PosizionaNavi(GrigliaNavi2, 2, Nome2)
+    PosizionaNavi(GrigliaNavi1, 1, Nome1)
+FINE
+
+
+=====================================================================
+PROCEDURA RiempiGriglia
+=====================================================================
+
+RiempiGriglia(GrigliaEsiti, GrigliaNavi)
+
+//Scorre tutte le righe (i) e tutte le colonne (j) e mette 0 in entrambe le griglie
+i=1
+MENTRE (i<=10)
+    j=1
+    MENTRE (j<=10)
+        GrigliaEsiti[i,j]=0
+        GrigliaNavi[i,j]=0
+        j=j+1
+    FINE
+    i=i+1
+FINE
+
+
+=====================================================================
+PROCEDURA PosizionaNavi
+=====================================================================
+
+PosizionaNavi(GrigliaNavi, Giocatore, Nome)
+
+Stampare("Posizionamento navi di ", Nome, " (giocatore ", Giocatore, ")")
+n=1
+MENTRE (n<=10)
+    //Stampare GrigliaNavi aggiornata
+    ESEGUI
+        Stampare("Inserire la riga iniziale della nave da ", Lunghezze[n], " caselle (1-10): ")
+        Leggere(RigaIniziale)
+        Stampare("Inserire la colonna iniziale della nave da ", Lunghezze[n], " caselle (A-J): ")
+        Leggere(ColonnaIniziale)      //convertita in numero, A=1 ... J=10
+        Stampare("Inserire la riga finale della nave da ", Lunghezze[n], " caselle (1-10): ")
+        Leggere(RigaFinale)
+        Stampare("Inserire la colonna finale della nave da ", Lunghezze[n], " caselle (A-J): ")
+        Leggere(ColonnaFinale)        //convertita in numero, A=1 ... J=10
+
+        Valida=1
+
+        //Controllo coordinate e nave dritta
+        SE (RigaIniziale<1 OR RigaIniziale>10 OR RigaFinale<1 OR RigaFinale>10
+            OR ColonnaIniziale<1 OR ColonnaIniziale>10 OR ColonnaFinale<1 OR ColonnaFinale>10
+            OR (RigaIniziale<>RigaFinale AND ColonnaIniziale<>ColonnaFinale))
+        ALLORA
+            Valida=0
+        ALTRIMENTI
+            SE (RigaIniziale=RigaFinale) ALLORA //nave orizzontale
+                //Estremi della nave (colonne)
+                SE (ColonnaIniziale<ColonnaFinale) ALLORA
+                    Min=ColonnaIniziale
+                    Max=ColonnaFinale
+                ALTRIMENTI
+                    Min=ColonnaFinale
+                    Max=ColonnaIniziale
+                FINE
+
+                //Gli estremi devono coprire esattamente la lunghezza richiesta
+                SE (Max-Min+1=Lunghezze[n]) ALLORA
+                    //Rettangolo da controllare: nave + 1 casella di margine
+                    RInizio=RigaIniziale-1
+                    RFine=RigaIniziale+1
+                    CInizio=Min-1
+                    CFine=Max+1
+
+                    //Limito il rettangolo ai bordi della griglia
+                    SE (RInizio<1) ALLORA RInizio=1 FINE
+                    SE (RFine>10) ALLORA RFine=10 FINE
+                    SE (CInizio<1) ALLORA CInizio=1 FINE
+                    SE (CFine>10) ALLORA CFine=10 FINE
+
+                    //Controllo che nel rettangolo non ci siano altre navi (vicini e diagonali compresi)
+                    r=RInizio
+                    MENTRE (r<=RFine)
+                        c=CInizio
+                        MENTRE (c<=CFine)
+                            SE (GrigliaNavi[r,c]<>0) ALLORA
+                                Valida=0
+                            FINE
+                            c=c+1
+                        FINE
+                        r=r+1
+                    FINE
+                ALTRIMENTI
+                    Valida=0
+                FINE
+            ALTRIMENTI //nave verticale
+                //Estremi della nave (righe)
+                SE (RigaIniziale<RigaFinale) ALLORA
+                    Min=RigaIniziale
+                    Max=RigaFinale
+                ALTRIMENTI
+                    Min=RigaFinale
+                    Max=RigaIniziale
+                FINE
+
+                //Anche in verticale, la distanza tra gli estremi deve essere corretta
+                SE (Max-Min+1=Lunghezze[n]) ALLORA
+                    //Rettangolo da controllare: nave + 1 casella di margine
+                    RInizio=Min-1
+                    RFine=Max+1
+                    CInizio=ColonnaIniziale-1
+                    CFine=ColonnaIniziale+1
+
+                    //Limito il rettangolo ai bordi della griglia
+                    SE (RInizio<1) ALLORA RInizio=1 FINE
+                    SE (RFine>10) ALLORA RFine=10 FINE
+                    SE (CInizio<1) ALLORA CInizio=1 FINE
+                    SE (CFine>10) ALLORA CFine=10 FINE
+
+                    //Controllo che nel rettangolo non ci siano altre navi (vicini e diagonali compresi)
+                    r=RInizio
+                    MENTRE (r<=RFine)
+                        c=CInizio
+                        MENTRE (c<=CFine)
+                            SE (GrigliaNavi[r,c]<>0) ALLORA
+                                Valida=0
+                            FINE
+                            c=c+1
+                        FINE
+                        r=r+1
+                    FINE
+                ALTRIMENTI
+                    Valida=0
+                FINE
+            FINE
+        FINE
+
+        SE (Valida=0) ALLORA
+            Stampare("Posizione non valida, riprova.")
+        FINE
+    FINCHE' (Valida=0)
+
+    //Registrazione della nave con il suo numero n in tutte le sue caselle
+    i=0
+    MENTRE (i<Lunghezze[n])
+        SE (RigaIniziale=RigaFinale) ALLORA //posizione orizzontale: parte dalla colonna piu' a sinistra
+            SE (ColonnaIniziale>ColonnaFinale) ALLORA
+                Min=ColonnaFinale
+            ALTRIMENTI
+                Min=ColonnaIniziale
+            FINE
+            GrigliaNavi[RigaIniziale, Min+i]=n
+        ALTRIMENTI //posizione verticale: parte dalla riga piu' in alto
+            SE (RigaIniziale>RigaFinale) ALLORA
+                Min=RigaFinale
+            ALTRIMENTI
+                Min=RigaIniziale
+            FINE
+            GrigliaNavi[Min+i, ColonnaFinale]=n
+        FINE
+        i=i+1
+    FINE
+    n=n+1
+FINE
